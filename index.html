@@ -14,6 +14,9 @@
   <!-- Bootstrap Core CSS -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
 
+  <!-- Bootsrtap Toggle CSS -->
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css">
 
@@ -60,14 +63,14 @@
 
   <!-- Page Content -->
   <div class="container">
-
     <!-- Buttons -->
     <div class="row main-buttons">
-      <dir class="col-md-4 pure content-left">
+      <div class="col-md-12 text-left">
         <!-- Hidden element -->
         <input class="hidden" id="hidden-file-input" type="file" multiple />
 
-        <div class="btn btn-warning" id="open-file-button" title="Open files from the local drive."><i class="fa fa-folder" aria-hidden="true"></i> Open...</div>
+        <!-- Open, New, Save buttons -->
+        <div class="btn btn-warning" id="open-file-button" title="Open files from the local drive."><i class="fa fa-folder" aria-hidden="true"></i> Open</div>
         <div class="btn btn-warning" id="new-file-button" title="Create a new a session." data-toggle="modal" data-target="#new-file-modal"><i class="fa fa-file" aria-hidden="true"></i> New</div>
         <div class="btn btn-warning" id="save-file-button" title="Save the currently selected session."><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</div>
 
@@ -91,18 +94,29 @@
           </div>
         </div>
 
-        <div class="btn btn-warning" id="editor-settings-button"><i class="fa fa-cog" aria-hidden="true"></i> Settings</div>
-      </dir>
-      <div class="col-md-4 pure content-center debugger-buttons">
-        <div class="btn btn-warning disabled" id="continue-stop-button" title="Continue/Stop"><i class="fa fa-play" aria-hidden="true"></i></div>
-        <div class="btn btn-warning disabled" id="step-button" title="Step-in"><i class="fa fa-step-forward" aria-hidden="true"></i></div>
-        <div class="btn btn-warning disabled" id="next-button" title="Next"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
+        <!-- Settings button -->
+        <input type="checkbox" id="editor-settings-button" data-toggle="toggle" data-onstyle="warning" data-on="Settings" data-off="Settings">
       </div>
-      <div class="col-md-4 pure content-right">
-        <div class="btn btn-warning" id="connect-to-button"><i class="fa fa-plug" aria-hidden="true"></i> Connect to</div>
-        <input type="text" name="host-ip" id="host-ip" class="form-control" placeholder="address" title="The host ip address." value="localhost">
-        <span>:</span>
-        <input type="number" name="host-port" id="host-port" class="form-control" placeholder="port" title="The host port number." min=0 value="5001">
+    </div>
+
+    <div class="row">
+      <!-- Connection Inputs -->
+      <div class="col-md-6 text-left">
+        <div class="connection-inputs">
+          <div class="btn btn-warning" id="connect-to-button"><i class="fa fa-plug" aria-hidden="true"></i> Connect to</div>
+          <input type="text" name="host-ip" id="host-ip" class="form-control" placeholder="address" title="The host ip address." value="localhost">
+          <span>:</span>
+          <input type="number" name="host-port" id="host-port" class="form-control" placeholder="port" title="The host port number." min=0 value="5001">
+        </div>
+      </div>
+
+      <!-- Debugger actions -->
+      <div class="col-md-6 text-center">
+        <div class="debugger-buttons">
+          <div class="btn btn-warning disabled" id="continue-stop-button" title="Continue/Stop"><i class="fa fa-play" aria-hidden="true"></i></div>
+          <div class="btn btn-warning disabled" id="step-button" title="Step-in"><i class="fa fa-step-forward" aria-hidden="true"></i></div>
+          <div class="btn btn-warning disabled" id="next-button" title="Next"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
+        </div>
       </div>
     </div>
 
@@ -110,173 +124,185 @@
     <div class="row">
       <div class="control-panel-wrapper">
         <div class="col-md-6">
-          <span>Editor</span>
-          <div class="control-panel">
-            <div class="control-item">
-              <label for="theme">Theme</label>
-              <select id="theme" class="form-control">
-                <optgroup label="Bright">
-                  <option value="ace/theme/chrome">Chrome</option>
-                  <option value="ace/theme/clouds">Clouds</option>
-                  <option value="ace/theme/crimson_editor">Crimson Editor</option>
-                  <option value="ace/theme/dawn">Dawn</option>
-                  <option value="ace/theme/dreamweaver">Dreamweaver</option>
-                  <option value="ace/theme/eclipse">Eclipse</option>
-                  <option value="ace/theme/github">GitHub</option>
-                  <option value="ace/theme/iplastic">IPlastic</option>
-                  <option value="ace/theme/solarized_light">Solarized Light</option>
-                  <option value="ace/theme/textmate">TextMate</option>
-                  <option value="ace/theme/tomorrow">Tomorrow</option>
-                  <option value="ace/theme/xcode">XCode</option>
-                  <option value="ace/theme/kuroir">Kuroir</option>
-                  <option value="ace/theme/katzenmilch">KatzenMilch</option>
-                  <option value="ace/theme/sqlserver">SQL Server</option>
-                </optgroup>
-                <optgroup label="Dark">
-                  <option value="ace/theme/ambiance">Ambiance</option>
-                  <option value="ace/theme/chaos">Chaos</option>
-                  <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
-                  <option value="ace/theme/cobalt">Cobalt</option>
-                  <option value="ace/theme/gruvbox">Gruvbox</option>
-                  <option value="ace/theme/idle_fingers">idle Fingers</option>
-                  <option value="ace/theme/kr_theme">krTheme</option>
-                  <option value="ace/theme/merbivore">Merbivore</option>
-                  <option value="ace/theme/merbivore_soft">Merbivore Soft</option>
-                  <option value="ace/theme/mono_industrial">Mono Industrial</option>
-                  <option value="ace/theme/monokai">Monokai</option>
-                  <option value="ace/theme/pastel_on_dark">Pastel on dark</option>
-                  <option value="ace/theme/solarized_dark">Solarized Dark</option>
-                  <option value="ace/theme/terminal">Terminal</option>
-                  <option value="ace/theme/tomorrow_night">Tomorrow Night</option>
-                  <option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option>
-                  <option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option>
-                  <option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option>
-                  <option value="ace/theme/twilight">Twilight</option>
-                  <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
-                </optgroup>
-              </select>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Editor
             </div>
-            <div class="control-item">
-              <label for="fontsize">Font Size</label>
-              <select id="fontsize" class="form-control">
-                <option value="10px">10px</option>
-                <option value="11px">11px</option>
-                <option value="12px" selected="selected">12px</option>
-                <option value="13px">13px</option>
-                <option value="14px">14px</option>
-                <option value="16px">16px</option>
-                <option value="18px">18px</option>
-                <option value="20px">20px</option>
-                <option value="24px">24px</option>
-              </select>
-            </div>
-            <div class="control-item">
-              <label for="folding">Code Folding</label>
-              <select id="folding" class="form-control">
-                <option value="manual">manual</option>
-                <option value="markbegin" selected="selected">mark begin</option>
-                <option value="markbeginend">mark begin and end</option>
-              </select>
-            </div>
-            <div class="control-item">
-              <label for="keybinding">Key Binding</label>
-              <select id="keybinding" class="form-control">
-                <option value="ace">Ace</option>
-                <option value="vim">Vim</option>
-                <option value="emacs">Emacs</option>
-                <option value="custom">Custom</option>
-              </select>
-            </div>
-            <div class="control-item">
-              <label for="soft_wrap">Soft Wrap</label>
-              <select id="soft_wrap" class="form-control">
-                <option value="off">Off</option>
-                <option value="40">40 Chars</option>
-                <option value="80">80 Chars</option>
-                <option value="free">Free</option>
-              </select>
-            </div>
-            <div class="control-item">
-              <label for="select_style">Full Line Selection</label>
-              <input type="checkbox" name="select_style" id="select_style" checked>
-            </div>
-            <div class="control-item">
-              <label for="highlight_active">Highlight Active Line</label>
-              <input type="checkbox" name="highlight_active" id="highlight_active" checked>
-            </div>
-            <div class="control-item">
-              <label for="show_hidden">Show Invisibles</label>
-              <input type="checkbox" name="show_hidden" id="show_hidden">
-            </div>
-            <div class="control-item">
-              <label for="display_indent_guides">Show Indent Guides</label>
-              <input type="checkbox" name="display_indent_guides" id="display_indent_guides" checked>
-            </div>
-            <div class="control-item">
-              <label for="show_hscroll">Persistent HScroll</label>
-              <input type="checkbox" name="show_hscroll" id="show_hscroll">
-              <label for="show_vscroll" id="vscroll-label">VScroll</label>
-              <input type="checkbox" name="show_vscroll" id="show_vscroll">
-            </div>
-            <div class="control-item">
-              <label for="animate_scroll">Animate scrolling</label>
-              <input type="checkbox" name="animate_scroll" id="animate_scroll">
-            </div>
-            <div class="control-item">
-              <label for="show_gutter">Show Gutter</label>
-              <input type="checkbox" id="show_gutter" checked>
-            </div>
-            <div class="control-item">
-              <label for="show_print_margin">Show Print Margin</label>
-              <input type="checkbox" id="show_print_margin" checked>
-            </div>
-            <div class="control-item">
-              <label for="soft_tab">Use Soft Tab</label>
-              <input type="checkbox" id="soft_tab" checked>
-            </div>
-            <div class="control-item">
-              <label for="highlight_selected_word">Highlight selected word</label>
-              <input type="checkbox" id="highlight_selected_word" checked>
-            </div>
-            <div class="control-item">
-              <label for="enable_behaviours">Enable Behaviours</label>
-              <input type="checkbox" id="enable_behaviours">
-            </div>
-            <div class="control-item">
-              <label for="fade_fold_widgets">Fade Fold Widgets</label>
-              <input type="checkbox" id="fade_fold_widgets">
-            </div>
-            <div class="control-item">
-              <label for="scrollPastEnd">Scroll Past End</label>
-              <input type="checkbox" id="scrollPastEnd" checked>
+            <div class="panel-body">
+              <div class="control-item">
+                <label for="theme">Theme</label>
+                <select id="theme" class="form-control">
+                  <optgroup label="Bright">
+                    <option value="ace/theme/chrome">Chrome</option>
+                    <option value="ace/theme/clouds">Clouds</option>
+                    <option value="ace/theme/crimson_editor">Crimson Editor</option>
+                    <option value="ace/theme/dawn">Dawn</option>
+                    <option value="ace/theme/dreamweaver">Dreamweaver</option>
+                    <option value="ace/theme/eclipse">Eclipse</option>
+                    <option value="ace/theme/github">GitHub</option>
+                    <option value="ace/theme/iplastic">IPlastic</option>
+                    <option value="ace/theme/solarized_light">Solarized Light</option>
+                    <option value="ace/theme/textmate">TextMate</option>
+                    <option value="ace/theme/tomorrow">Tomorrow</option>
+                    <option value="ace/theme/xcode">XCode</option>
+                    <option value="ace/theme/kuroir">Kuroir</option>
+                    <option value="ace/theme/katzenmilch">KatzenMilch</option>
+                    <option value="ace/theme/sqlserver">SQL Server</option>
+                  </optgroup>
+                  <optgroup label="Dark">
+                    <option value="ace/theme/ambiance">Ambiance</option>
+                    <option value="ace/theme/chaos">Chaos</option>
+                    <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+                    <option value="ace/theme/cobalt">Cobalt</option>
+                    <option value="ace/theme/gruvbox">Gruvbox</option>
+                    <option value="ace/theme/idle_fingers">idle Fingers</option>
+                    <option value="ace/theme/kr_theme">krTheme</option>
+                    <option value="ace/theme/merbivore">Merbivore</option>
+                    <option value="ace/theme/merbivore_soft">Merbivore Soft</option>
+                    <option value="ace/theme/mono_industrial">Mono Industrial</option>
+                    <option value="ace/theme/monokai">Monokai</option>
+                    <option value="ace/theme/pastel_on_dark">Pastel on dark</option>
+                    <option value="ace/theme/solarized_dark">Solarized Dark</option>
+                    <option value="ace/theme/terminal">Terminal</option>
+                    <option value="ace/theme/tomorrow_night">Tomorrow Night</option>
+                    <option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option>
+                    <option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option>
+                    <option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option>
+                    <option value="ace/theme/twilight">Twilight</option>
+                    <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="control-item">
+                <label for="fontsize">Font Size</label>
+                <select id="fontsize" class="form-control">
+                  <option value="10px">10px</option>
+                  <option value="11px">11px</option>
+                  <option value="12px" selected="selected">12px</option>
+                  <option value="13px">13px</option>
+                  <option value="14px">14px</option>
+                  <option value="16px">16px</option>
+                  <option value="18px">18px</option>
+                  <option value="20px">20px</option>
+                  <option value="24px">24px</option>
+                </select>
+              </div>
+              <div class="control-item">
+                <label for="folding">Code Folding</label>
+                <select id="folding" class="form-control">
+                  <option value="manual">manual</option>
+                  <option value="markbegin" selected="selected">mark begin</option>
+                  <option value="markbeginend">mark begin and end</option>
+                </select>
+              </div>
+              <div class="control-item">
+                <label for="keybinding">Key Binding</label>
+                <select id="keybinding" class="form-control">
+                  <option value="ace">Ace</option>
+                  <option value="vim">Vim</option>
+                  <option value="emacs">Emacs</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              <div class="control-item">
+                <label for="soft_wrap">Soft Wrap</label>
+                <select id="soft_wrap" class="form-control">
+                  <option value="off">Off</option>
+                  <option value="40">40 Chars</option>
+                  <option value="80">80 Chars</option>
+                  <option value="free">Free</option>
+                </select>
+              </div>
+              <div class="control-item">
+                <label for="select_style">Full Line Selection</label>
+                <input type="checkbox" name="select_style" id="select_style" checked>
+              </div>
+              <div class="control-item">
+                <label for="highlight_active">Highlight Active Line</label>
+                <input type="checkbox" name="highlight_active" id="highlight_active" checked>
+              </div>
+              <div class="control-item">
+                <label for="show_hidden">Show Invisibles</label>
+                <input type="checkbox" name="show_hidden" id="show_hidden">
+              </div>
+              <div class="control-item">
+                <label for="display_indent_guides">Show Indent Guides</label>
+                <input type="checkbox" name="display_indent_guides" id="display_indent_guides" checked>
+              </div>
+              <div class="control-item">
+                <label for="show_hscroll">Persistent HScroll</label>
+                <input type="checkbox" name="show_hscroll" id="show_hscroll">
+                <label for="show_vscroll" id="vscroll-label">VScroll</label>
+                <input type="checkbox" name="show_vscroll" id="show_vscroll">
+              </div>
+              <div class="control-item">
+                <label for="animate_scroll">Animate scrolling</label>
+                <input type="checkbox" name="animate_scroll" id="animate_scroll">
+              </div>
+              <div class="control-item">
+                <label for="show_gutter">Show Gutter</label>
+                <input type="checkbox" id="show_gutter" checked>
+              </div>
+              <div class="control-item">
+                <label for="show_print_margin">Show Print Margin</label>
+                <input type="checkbox" id="show_print_margin" checked>
+              </div>
+              <div class="control-item">
+                <label for="soft_tab">Use Soft Tab</label>
+                <input type="checkbox" id="soft_tab" checked>
+              </div>
+              <div class="control-item">
+                <label for="highlight_selected_word">Highlight selected word</label>
+                <input type="checkbox" id="highlight_selected_word" checked>
+              </div>
+              <div class="control-item">
+                <label for="enable_behaviours">Enable Behaviours</label>
+                <input type="checkbox" id="enable_behaviours">
+              </div>
+              <div class="control-item">
+                <label for="fade_fold_widgets">Fade Fold Widgets</label>
+                <input type="checkbox" id="fade_fold_widgets">
+              </div>
+              <div class="control-item">
+                <label for="scrollPastEnd">Scroll Past End</label>
+                <input type="checkbox" id="scrollPastEnd" checked>
+              </div>
             </div>
           </div>
         </div>
         <div class="col-md-6">
-          <span>Layout</span>
-          <div class="control-panel">
-            <div class="control-item">
-              <label for="backtracePanelSwitch">Backtrace panel</label>
-              <input type="checkbox" id="backtrace-PanelSwitch" class="panel-switch" checked>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Layout
             </div>
-            <div class="control-item">
-              <label for="breakpointsPanelSwitch">Breakpoints panel</label>
-              <input type="checkbox" id="breakpoints-PanelSwitch" class="panel-switch" checked>
-            </div>
-            <div class="control-item">
-              <label for="consolePanelSwitch">Console panel</label>
-              <input type="checkbox" id="console-PanelSwitch" class="panel-switch" checked>
-            </div>
-            <div class="control-item">
-              <label for="evalPanelSwitch">Eval panel</label>
-              <input type="checkbox" id="eval-PanelSwitch" class="panel-switch">
+            <div class="panel-body">
+              <div class="control-item">
+                <label for="backtrace-PanelSwitch">Backtrace panel</label>
+                <input type="checkbox" id="backtrace-PanelSwitch" class="panel-switch" checked>
+              </div>
+              <div class="control-item">
+                <label for="breakpoints-PanelSwitch">Breakpoints panel</label>
+                <input type="checkbox" id="breakpoints-PanelSwitch" class="panel-switch" checked>
+              </div>
+              <div class="control-item">
+                <label for="console-PanelSwitch">Console panel</label>
+                <input type="checkbox" id="console-PanelSwitch" class="panel-switch" checked>
+              </div>
+              <div class="control-item">
+                <label for="eval-PanelSwitch">Eval panel</label>
+                <input type="checkbox" id="eval-PanelSwitch" class="panel-switch" checked>
+              </div>
             </div>
           </div>
-          <span>Debugger</span>
-          <div class="control-panel">
-            <div class="control-item">
-              <label for="backtrace-depth">Backtrace depth</label>
-              <input type="number" name="backtrace-depth" id="backtrace-depth" class="form-control" title="Maximum depth of backtrace. 0 by default." min="0" value="0">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Debugger
+            </div>
+            <div class="panel-body">
+              <div class="control-item">
+                <label for="backtrace-depth">Backtrace depth</label>
+                <input type="number" name="backtrace-depth" id="backtrace-depth" class="form-control" title="Maximum depth of backtrace. 0 by default." min="0" value="0">
+              </div>
             </div>
           </div>
         </div>
@@ -287,21 +313,23 @@
     <div class="row">
 
       <!-- panels -->
-      <div class="col-md-6" id="debugger-panel">
+      <div class="col-md-6" id="info-panels">
         <!-- Backtrace -->
         <div class="row" id="backtrace-wrapper">
           <div class="col-md-12">
-            <div class="single-panel-title">
-              <span>Backtrace</span>
-            </div>
-            <div class="single-panel backtrace">
-              <div class="list-row list-header backtrace-header">
-                <div class="list-col list-col-0">Frame</div>
-                <div class="list-col list-col-1">Resource</div>
-                <div class="list-col list-col-2">Line</div>
-                <div class="list-col list-col-3">Function</div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Backtrace
               </div>
-              <div id="backtrace-content" class="single-panel-content"></div>
+              <div class="panel-body backtrace">
+                <div class="list-row list-header backtrace-header">
+                  <div class="list-col list-col-0">Frame</div>
+                  <div class="list-col list-col-1">Resource</div>
+                  <div class="list-col list-col-2">Line</div>
+                  <div class="list-col list-col-3">Function</div>
+                </div>
+                <div id="backtrace-content" class="default-panel-content"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -309,17 +337,19 @@
         <!-- Breakpoint list -->
         <div class="row" id="breakpoints-wrapper">
           <div class="col-md-12">
-            <div class="single-panel-title">
-              <span>Breakpoint informations</span>
-            </div>
-            <div class="single-panel breakpoints">
-              <div class="list-row list-header breakpoints-header">
-                <div class="list-col list-col-0">Resource</div>
-                <div class="list-col list-col-1">Line</div>
-                <div class="list-col list-col-2">ID</div>
-                <div class="list-col list-col-3">Function</div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Breakpoint informations
               </div>
-              <div id="breakpoints-content" class="single-panel-content"></div>
+              <div class="panel-body breakpoints">
+                <div class="list-row list-header breakpoints-header">
+                  <div class="list-col list-col-0">Resource</div>
+                  <div class="list-col list-col-1">Line</div>
+                  <div class="list-col list-col-2">ID</div>
+                  <div class="list-col list-col-3">Function</div>
+                </div>
+                <div id="breakpoints-content" class="default-panel-content"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -327,11 +357,13 @@
         <!-- Console log-->
         <div class="row" id="console-wrapper">
           <div class="col-md-12">
-            <div class="single-panel-title">
-              <span>Console log</span>
-            </div>
-            <div class="single-panel console">
-              <div id="console-panel" class="single-panel-content"></div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Console log
+              </div>
+              <div class="panel-body console">
+                <div id="console-panel" class="default-panel-content"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -339,14 +371,16 @@
         <!-- Eval -->
         <div class="row" id="eval-wrapper">
           <div class="col-md-12">
-            <div class="single-panel-title">
-              <span>Eval</span>
-            </div>
-            <div class="single-panel eval">
-              <div id="eval-panel" class="single-panel-content"></div>
-            </div>
-            <div>
-              <input type="text" class="form-control" id="eval-input" onkeypress="evalCommand(event); return true;" placeholder="eval input">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                Eval
+              </div>
+              <div class="panel-body eval">
+                <div id="eval-panel" class="default-panel-content"></div>
+              </div>
+              <div class="panel-footer">
+                <input type="text" class="form-control" id="eval-input" onkeypress="evalCommand(event); return true;" placeholder="eval input">
+              </div>
             </div>
           </div>
         </div>
@@ -375,6 +409,9 @@
 
   <!-- Bootstrap Core JavaScript -->
   <script src="js/bootstrap.min.js"></script>
+
+  <!-- Bootsrtap Toggle JavaScript -->
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
   <!-- Ace -->
   <script src="src/ace.js" type="text/javascript" charset="utf-8"></script>

@@ -626,7 +626,7 @@ $(document).ready(function()
   /*
   * Editor settings button event.
   */
-  $("#editor-settings-button").on("click", function()
+  $("#editor-settings-button").on("change", function()
   {
     $(".control-panel-wrapper").toggleClass("block-control-panel-wrapper");
   });
@@ -725,7 +725,7 @@ $(document).ready(function()
     var regex = /^([a-zA-Z0-9_\-]{3,}\.js)$/;
     if (!regex.test(fileName))
     {
-      info.append("<p>The filename must be 3 character at least and ends with '.js'.</p>");
+      info.append("<p>The filename must be at least 3 characters long and must ends with '.js'.</p>");
       valid = false;
     }
     if (getSessionIdbyName(fileName) != null)
@@ -883,17 +883,19 @@ $(document).ready(function()
       env.numberOfHiddenPanel++;
     }
 
-    if (env.numberOfHiddenPanel < $("#debugger-panel").children().length)
+    if (env.numberOfHiddenPanel < $("#info-panels").children().length)
     {
-      $("#editor-wrapper").removeClass("col-lg-12");
-      $("#editor-wrapper").addClass("col-lg-6");
-      $("#debugger-panel").show();
+      $("#editor-wrapper").removeClass("col-md-12");
+      $("#editor-wrapper").addClass("col-md-6");
+      $("#info-panels").show();
+      env.editor.resize()
     }
     else
     {
-      $("#editor-wrapper").removeClass("col-lg-6");
-      $("#editor-wrapper").addClass("col-lg-12");
-      $("#debugger-panel").hide();
+      $("#editor-wrapper").removeClass("col-md-6");
+      $("#editor-wrapper").addClass("col-md-12");
+      $("#info-panels").hide();
+      env.editor.resize()
     }
   });
 

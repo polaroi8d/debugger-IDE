@@ -56,6 +56,10 @@ input[type="number"] {
   color: #000;
 }
 
+.panel .panel-heading {
+  padding: 5px;
+}
+
 /**
 *  Menubar
 */
@@ -84,29 +88,16 @@ input[type="number"] {
   margin-bottom: 10px;
 }
 
-.main-buttons .btn {
-  margin: 5px 5px 0 0;
+.connection-inputs #host-ip {
+  width: 120px;
 }
 
-.main-buttons #host-ip,
-.main-buttons #host-port {
-  margin-top: 5px;
-}
-
-.main-buttons #host-ip {
-	width: 120px;
-}
-
-.main-buttons #host-port {
-  width: 90px;
-}
-
-.main-buttons .content-right span {
-  position: relative;
-  margin-top: 10px;
+.connection-inputs #host-port {
+  width: 100px;
 }
 
 .debugger-buttons .btn {
+  margin: 5px;
   width: 40px;
 }
 
@@ -118,25 +109,16 @@ input[type="number"] {
   display: block;
 }
 
-.control-panel-wrapper .control-panel {
-  position: relative;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #d9d9d9;
-  border-radius: 5px;
-  background-color: #f2f2f2;
-}
-
-.control-panel .control-item label{
+.control-panel-wrapper .panel-body .control-item label {
   width: 50%;
 }
 
-.control-panel .control-item label#vscroll-label {
+.control-panel-wrapper .panel-body .control-item label#vscroll-label {
   margin-left: 10px;
   width: 15%;
 }
 
-.control-panel .control-item select {
+.control-panel-wrapper .panel-body .control-item select {
   width: 200px;
   margin: 2px 0 2px 0;
 }
@@ -153,7 +135,8 @@ input[type="number"] {
 #editor {
   position: relative;
   width: 100%;
-  min-height: 755px;
+  min-width: 100%;
+  min-height: 750px;
   border: 1px solid #d9d9d9;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
@@ -244,88 +227,84 @@ div.file-tabs a.unsaved {
 }
 
 /**
-*  Debugger panels
+*  Info panels
 */
-#debugger-panel .single-panel-title {
-  position: relative;
+#info-panels .panel .panel-body {
+  padding: 0;
 }
 
-#debugger-panel .single-panel {
-  position: relative;
-  width: 100%;
-  margin: 0 0 5px 0;
-  border: 1px solid #d9d9d9;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+#info-panels .panel .panel-footer {
+  padding: 5px;
 }
 
-#debugger-panel .single-panel .single-panel-content {
+#info-panels .panel .panel-body .default-panel-content {
   position: relative;
   width: 100%;
-  height: 210px;
+  min-height: 100px;
   display: block;
   overflow-y: auto;
   resize: vertical;
   padding: 5px;
 }
 
-#debugger-panel .single-panel .list-header {
+#info-panels .panel .panel-body .list-header {
   font-weight: bold;
   background-color: #f2f2f2;
+  border-bottom: 1px solid #ddd;
 }
 
-#debugger-panel .single-panel .list-row {
+#info-panels .panel .panel-body .list-row {
   word-wrap: break-word;
   width: 100%;
 }
 
-#debugger-panel .single-panel .list-row:after {
+#info-panels .panel .panel-body .list-row:after {
   content: "";
   clear: both;
   display: table;
 }
 
-#debugger-panel .single-panel .list-row .list-col {
+#info-panels .panel .panel-body .list-row .list-col {
   position: relative;
   padding: 0 5px 0 5px;
   float: left;
 }
 
 /* backtrace list */
-#debugger-panel .backtrace .list-row .list-col-0 {
+#info-panels .backtrace .list-row .list-col-0 {
   width: 15%;
 }
 
-#debugger-panel .backtrace .list-row .list-col-1 {
+#info-panels .backtrace .list-row .list-col-1 {
   width: 25%;
 }
 
-#debugger-panel .backtrace .list-row .list-col-2 {
+#info-panels .backtrace .list-row .list-col-2 {
   width: 20%;
 }
 
-#debugger-panel .backtrace .list-row .list-col-3 {
+#info-panels .backtrace .list-row .list-col-3 {
   width: 40%;
 }
 
 /* Breakpoints list */
-#debugger-panel .breakpoints .list-row .list-col-0 {
+#info-panels .breakpoints .list-row .list-col-0 {
   width: 30%;
 }
 
-#debugger-panel .breakpoints .list-row .list-col-1 {
+#info-panels .breakpoints .list-row .list-col-1 {
   width: 15%;
 }
 
-#debugger-panel .breakpoints .list-row .list-col-2 {
+#info-panels .breakpoints .list-row .list-col-2 {
   width: 15%;
 }
 
-#debugger-panel .breakpoints .list-row .list-col-3 {
+#info-panels .breakpoints .list-row .list-col-3 {
   width: 40%;
 }
 
-#debugger-panel .single-panel .list-row:nth-child(even) {
+#info-panels .single-panel .list-row:nth-child(even) {
   background-color: #f2f2f2;
 }
 
@@ -333,8 +312,8 @@ div.file-tabs a.unsaved {
 Console,
 Eval console
 */
-#eval-wrapper {
-  display: none;
+.console .default-panel-content {
+  height: 200px;
 }
 
 #eval-input {
