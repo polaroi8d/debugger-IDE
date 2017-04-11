@@ -12,22 +12,24 @@ var JERRY_DEBUGGER_FUNCTION_NAME = 11;
 var JERRY_DEBUGGER_FUNCTION_NAME_END = 12;
 var JERRY_DEBUGGER_RELEASE_BYTE_CODE_CP = 13;
 var JERRY_DEBUGGER_BREAKPOINT_HIT = 14;
-var JERRY_DEBUGGER_BACKTRACE = 15;
-var JERRY_DEBUGGER_BACKTRACE_END = 16;
-var JERRY_DEBUGGER_EVAL_RESULT = 17;
-var JERRY_DEBUGGER_EVAL_RESULT_END = 18;
-var JERRY_DEBUGGER_EVAL_ERROR = 19;
-var JERRY_DEBUGGER_EVAL_ERROR_END = 20;
+var JERRY_DEBUGGER_EXCEPTION_HIT = 15;
+var JERRY_DEBUGGER_BACKTRACE = 16;
+var JERRY_DEBUGGER_BACKTRACE_END = 17;
+var JERRY_DEBUGGER_EVAL_RESULT = 18;
+var JERRY_DEBUGGER_EVAL_RESULT_END = 19;
+var JERRY_DEBUGGER_EVAL_ERROR = 20;
+var JERRY_DEBUGGER_EVAL_ERROR_END = 21;
 
 var JERRY_DEBUGGER_FREE_BYTE_CODE_CP = 1;
 var JERRY_DEBUGGER_UPDATE_BREAKPOINT = 2;
-var JERRY_DEBUGGER_STOP = 3;
-var JERRY_DEBUGGER_CONTINUE = 4;
-var JERRY_DEBUGGER_STEP = 5;
-var JERRY_DEBUGGER_NEXT = 6;
-var JERRY_DEBUGGER_GET_BACKTRACE = 7;
-var JERRY_DEBUGGER_EVAL = 8;
-var JERRY_DEBUGGER_EVAL_PART = 9;
+var JERRY_DEBUGGER_EXCEPTION_CONFIG = 3;
+var JERRY_DEBUGGER_STOP = 4;
+var JERRY_DEBUGGER_CONTINUE = 5;
+var JERRY_DEBUGGER_STEP = 6;
+var JERRY_DEBUGGER_NEXT = 7;
+var JERRY_DEBUGGER_GET_BACKTRACE = 8;
+var JERRY_DEBUGGER_EVAL = 9;
+var JERRY_DEBUGGER_EVAL_PART = 10;
 
 var client = {
   socket : null,
@@ -191,13 +193,17 @@ function updateInvalidLines()
   if (client.debuggerObj)
   {
     var lines = getLinesFromRawData(client.debuggerObj.getBreakpointLines());
-    lines.sort(function(a, b){ return a - b} );
 
-    for (var i = env.editor.session.getLength(); i > 0; i--) {
-      if (lines.includes(i) === false)
-      {
-        //editor.session.removeGutterDecoration(i - 1, "invalid-gutter-cell");
-        env.editor.session.addGutterDecoration(i - 1, "invalid-gutter-cell");
+    if (lines.length != 0)
+    {
+      lines.sort(function(a, b){ return a - b} );
+
+      for (var i = env.editor.session.getLength(); i > 0; i--) {
+        if (lines.includes(i) === false)
+        {
+          env.editor.session.removeGutterDecoration(i - 1, "invalid-gutter-cell");
+          env.editor.session.addGutterDecoration(i - 1, "invalid-gutter-cell");
+        }
       }
     }
   }
@@ -477,7 +483,7 @@ function sessionNameCheck(name, log)
   {
     if (log)
     {
-      logger.warn("Warning! The " + name + " is not loaded into the editor.\n");
+      logger.warn("Warning! The " + name + " is missing.\n");
     }
 
     return false;
@@ -498,29 +504,10 @@ function sessionSourceCheck(source, log)
 
   if (log)
   {
-    logger.warn("Warning! The source in the current session is invalid!");
+    logger.warn("Warning! The source in the session is invalid!");
   }
 
   return false;
-}
-
-// sourceCheck
-function sourceCheck(name, source)
-{
-  var sID = getSessionIdbyName(name);
-  if (sID === null)
-  {
-    logger.warn("Warning! The " + name + " is not loaded into the editor.\n");
-    return false;
-  }
-
-  var s = getSessionById(sID);
-  if (source.localeCompare(s.getValue()) != 0)
-  {
-    logger.warn("Warning! The debugger source does not match the editor source! ");
-    return false;
-  }
-  return true;
 }
 
 /*
@@ -1454,6 +1441,66 @@ function DebuggerClient(address)
     client.socket.send(message);
   }
 
+  function releaseFunction(message)
+  {
+    var byte_code_cp = decodeMessage("C", message, 1)[0];
+    var func = functions[byte_code_cp];
+
+    for (var i in func.lines)
+    {
+      lineList.delete(i, func);
+
+      var breakpoint = func.lines[i];
+
+      assert(i == breakpoint.line);
+
+      if (breakpoint.activeIndex >= 0)
+      {
+        delete activeBreakpoints[breakpoint.activeIndex];
+      }
+    }
+
+    delete functions[byte_code_cp];
+
+    message[0] = JERRY_DEBUGGER_FREE_BYTE_CODE_CP;
+    client.socket.send(message);
+  }
+
+  function getBreakpoint(breakpointData)
+  {
+      var returnValue = {};
+      var func = functions[breakpointData[0]];
+      var offset = breakpointData[1];
+
+      if (offset in functions)
+      {
+        returnValue.breakpoint = func.offsets[offset];
+        returnValue.at = true;
+        return returnValue;
+      }
+
+      if (offset < functions.firstBreakpointOffset)
+      {
+        returnValue.breakpoint = func.offsets[firstBreakpointOffset];
+        returnValue.at = true;
+        return returnValue;
+      }
+
+      nearest_offset = -1;
+
+      for (var current_offset in func.offsets)
+      {
+        if ((current_offset <= offset) && (current_offset > nearest_offset))
+        {
+          nearest_offset = current_offset;
+        }
+      }
+
+      returnValue.breakpoint = func.offsets[nearest_offset];
+      returnValue.at = false;
+      return returnValue;
+  }
+
   this.encodeMessage = encodeMessage;
 
   function ParseSource()
@@ -1463,7 +1510,13 @@ function DebuggerClient(address)
     var sourceName = "";
     var sourceNameData = null;
     var functionName = null;
-    var stack = [ { name: "", source: "", lines: [], offsets: [] } ];
+    var stack = [{ is_func: false,
+                   line: 1,
+                   column: 1,
+                   name: "",
+                   source: "",
+                   lines: [],
+                   offsets: [] }];
     var newFunctions = [ ];
 
     this.receive = function(message)
@@ -1510,7 +1563,12 @@ function DebuggerClient(address)
 
         case JERRY_DEBUGGER_PARSE_FUNCTION:
         {
-          stack.push({ name: cesu8ToString(functionName),
+          position = decodeMessage("II", message, 1);
+
+          stack.push({ is_func: true,
+                       line: position[0],
+                       column: position[1],
+                       name: cesu8ToString(functionName),
                        source: source,
                        sourceName: sourceName,
                        lines: [],
@@ -1575,12 +1633,27 @@ function DebuggerClient(address)
 
           func.source = source;
           func.sourceName = sourceName;
-          if (sourceName === "")
-          {
-            console.log("New anonymus file.");
-            createNewSession("unknown.js", source, filetab.work, false);
-          }
+          // TODO: Create new sesison for internal eval.
+          // if (sourceName === "")
+          // {
+          //   createNewSession("unknown.js", source, filetab.work, false);
+          // }
           break;
+        }
+
+        case JERRY_DEBUGGER_RELEASE_BYTE_CODE_CP:
+        {
+          var byte_code_cp = decodeMessage("C", message, 1)[0];
+
+          if (byte_code_cp in newFunctions)
+          {
+            delete newFunctions[byte_code_cp];
+          }
+          else
+          {
+            releaseFunction(message);
+          }
+          return;
         }
 
         default:
@@ -1662,47 +1735,34 @@ function DebuggerClient(address)
 
       case JERRY_DEBUGGER_RELEASE_BYTE_CODE_CP:
       {
-        var byte_code_cp = decodeMessage("C", message, 1)[0];
-
-        var func = functions[byte_code_cp];
-
-        for (var i in func.lines)
-        {
-          lineList.delete(i, func);
-
-          var breakpoint = func.lines[i];
-
-          assert(i == breakpoint.line);
-
-          if (breakpoint.activeIndex >= 0)
-          {
-            delete activeBreakpoints[breakpoint.activeIndex];
-          }
-        }
-
-        delete functions[byte_code_cp];
-
-        message[0] = JERRY_DEBUGGER_FREE_BYTE_CODE_CP;
-        client.socket.send(message);
+        releaseFunction(message);
         return;
       }
 
       case JERRY_DEBUGGER_BREAKPOINT_HIT:
+      case JERRY_DEBUGGER_EXCEPTION_HIT:
       {
-        var breakpoint = decodeMessage("CI", message, 1);
+        var breakpointData = decodeMessage("CI", message, 1);
+        var breakpointRef = getBreakpoint(breakpointData);
+        var breakpoint = breakpointRef.breakpoint;
 
-        breakpoint = functions[breakpoint[0]].offsets[breakpoint[1]];
+        if (message[0] == JERRY_DEBUGGER_EXCEPTION_HIT)
+        {
+          logger.log("Exception throw detected (to disable automatic stop type exception 0)");
+        }
 
         lastBreakpointHit = breakpoint;
 
-        breakpointIndex = "";
-
-        if (breakpoint.activeIndex >= 0)
+        var breakpointInfo = "";
+        if (breakpoint.offset.activeIndex >= 0)
         {
-          breakpointIndex = "breakpoint:" + breakpoint.activeIndex + " ";
+          breakpointInfo = " breakpoint:" + breakpoint.offset.activeIndex + " ";
         }
 
-        logger.log("Stopped at " + breakpointIndex + breakpointToString(breakpoint));
+        logger.log("Stopped "
+                   + (breakpoint.at ? "at " : "around ")
+                   + breakpointInfo
+                   + breakpointToString(breakpoint));
 
         env.lastBreakpoint = breakpoint;
 
@@ -1746,44 +1806,18 @@ function DebuggerClient(address)
         resetPanel($("#backtrace-content"));
         for (var i = 1; i < message.byteLength; i += cpointerSize + 4)
         {
-          var breakpoint = decodeMessage("CI", message, i);
+          var breakpointData = decodeMessage("CI", message, i);
 
-          var func = functions[breakpoint[0]];
-          var best_offset = -1;
+          breakpoint = getBreakpoint(breakpointData).breakpoint;
 
-          for (var offset in func.offsets)
+          if (env.clBacktrace)
           {
-            if (offset <= breakpoint[1] && offset > best_offset)
-            {
-              best_offset = offset;
-            }
+            logger.log("  frame "
+                        + backtraceFrame
+                        + ": "
+                        + breakpointToString(breakpoint));
           }
-
-          if (best_offset >= 0)
-          {
-            breakpoint = func.offsets[best_offset];
-            if(env.clBacktrace)
-            {
-              logger.log("  frame " + backtraceFrame + ": " + breakpointToString(breakpoint));
-            }
-            updateBacktracePanel(backtraceFrame, breakpoint);
-          }
-          else if (func.name)
-          {
-            if (env.clBacktrace)
-            {
-              logger.log("  frame " + backtraceFrame + ": " + func.name + "()");
-            }
-            updateBacktracePanel(backtraceFrame, func.name + "()");
-          }
-          else
-          {
-            if (env.clBacktrace)
-            {
-              logger.log("  frame " + backtraceFrame + ": <unknown>()");
-            }
-            updateBacktracePanel(backtraceFrame, "<unknown>()");
-          }
+          updateBacktracePanel(backtraceFrame, breakpoint);
 
           ++backtraceFrame;
         }
@@ -1887,6 +1921,31 @@ function DebuggerClient(address)
     }
   }
 
+  this.sendExceptionConfig = function(enable)
+  {
+    if (enable == "")
+    {
+      logger.err("Argument required");
+      return;
+    }
+
+    if (enable == 1)
+    {
+      logger.log("Stop at exception enabled");
+    }
+    else if (enable == 0)
+    {
+      logger.log("Stop at exception disabled");
+    }
+    else
+    {
+      logger.log("Invalid input. Usage 1: [Enable] or 0: [Disable].");
+      return;
+    }
+
+    encodeMessage("BB", [ JERRY_DEBUGGER_EXCEPTION_CONFIG, enable ]);
+  }
+
   this.deleteBreakpoint = function(index)
   {
     breakpoint = activeBreakpoints[index];
@@ -1945,10 +2004,43 @@ function DebuggerClient(address)
     }
   }
 
+  this.sendResumeExec = function(command)
+  {
+    if (!lastBreakpointHit)
+    {
+      logger.log("This command is allowed only if JavaScript execution is stopped at a breakpoint.");
+      return;
+    }
+
+    encodeMessage("B", [ command ]);
+
+    lastBreakpointHit = null;
+  }
+
+  this.sendGetBacktrace = function(depth)
+  {
+    if (!lastBreakpointHit)
+    {
+      logger.err("This command is allowed only if JavaScript execution is stopped at a breakpoint.");
+      return;
+    }
+
+    encodeMessage("BI", [ JERRY_DEBUGGER_GET_BACKTRACE, max_depth ]);
+
+    logger.log("Backtrace:");
+  }
+
   this.sendEval = function(str)
   {
+    if (!lastBreakpointHit)
+    {
+      logger.err("This command is allowed only if JavaScript execution is stopped at a breakpoint.");
+      return;
+    }
+
     if (str == "")
     {
+      logger.err("Argument required");
       return;
     }
 
@@ -1993,7 +2085,16 @@ function DebuggerClient(address)
         sourceName = "<unknown>";
       }
 
-      logger.log("Function 0x" + Number(i).toString(16) + " '" + func.name + "' at " + sourceName + ":" + func.firstLine);
+      logger.log("Function 0x"
+                 + Number(i).toString(16)
+                 + " '"
+                 + func.name
+                 + "' at "
+                 + sourceName
+                 + ":"
+                 + func.line
+                 + ","
+                 + func.column);
 
       for (var j in func.lines)
       {
@@ -2004,7 +2105,7 @@ function DebuggerClient(address)
           active = " (active: " + func.lines[j].active + ")";
         }
 
-        logger.log("  Breatpoint line: " + j + " at memory offset: " + func.lines[j].offset + active);
+        logger.log("  Breakpoint line: " + j + " at memory offset: " + func.lines[j].offset + active);
       }
     }
   }

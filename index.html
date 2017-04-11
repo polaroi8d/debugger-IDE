@@ -99,27 +99,6 @@
       </div>
     </div>
 
-    <div class="row">
-      <!-- Connection Inputs -->
-      <div class="col-md-6 text-left">
-        <div class="connection-inputs">
-          <div class="btn btn-warning" id="connect-to-button"><i class="fa fa-plug" aria-hidden="true"></i> Connect to</div>
-          <input type="text" name="host-ip" id="host-ip" class="form-control" placeholder="address" title="The host ip address." value="localhost">
-          <span>:</span>
-          <input type="number" name="host-port" id="host-port" class="form-control" placeholder="port" title="The host port number." min=0 value="5001">
-        </div>
-      </div>
-
-      <!-- Debugger actions -->
-      <div class="col-md-6 text-center">
-        <div class="debugger-buttons">
-          <div class="btn btn-warning disabled" id="continue-stop-button" title="Continue/Stop"><i class="fa fa-play" aria-hidden="true"></i></div>
-          <div class="btn btn-warning disabled" id="step-button" title="Step-in"><i class="fa fa-step-forward" aria-hidden="true"></i></div>
-          <div class="btn btn-warning disabled" id="next-button" title="Next"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Editor settings -->
     <div class="row">
       <div class="control-panel-wrapper">
@@ -308,6 +287,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Debugger action buttons -->
+    <div class="row">
+      <!-- Connection Inputs -->
+      <div class="col-md-6 text-left">
+        <div class="connection-inputs">
+          <div class="btn btn-warning" id="connect-to-button"><i class="fa fa-plug" aria-hidden="true"></i> Connect to</div>
+          <input type="text" name="host-ip" id="host-ip" class="form-control" placeholder="address" title="The host ip address." value="localhost">
+          <span>:</span>
+          <input type="number" name="host-port" id="host-port" class="form-control" placeholder="port" title="The host port number." min=0 value="5001">
+        </div>
+      </div>
+
+      <!-- Debugger actions -->
+      <div class="col-md-6 text-center">
+        <div class="debugger-buttons">
+          <div class="btn btn-warning disabled" id="continue-stop-button" title="Continue/Stop"><i class="fa fa-play" aria-hidden="true"></i></div>
+          <div class="btn btn-warning disabled" id="step-button" title="Step-in"><i class="fa fa-step-forward" aria-hidden="true"></i></div>
+          <div class="btn btn-warning disabled" id="next-button" title="Next"><i class="fa fa-arrow-right" aria-hidden="true"></i></div>
+        </div>
+      </div>
+    </div>
+    <!-- /Debugger action buttons -->
 
     <!-- Debugger panels and the editor wrapper -->
     <div class="row">

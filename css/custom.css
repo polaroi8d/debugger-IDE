@@ -230,6 +230,7 @@ div.file-tabs a.unsaved {
 *  Info panels
 */
 #info-panels .panel .panel-body {
+  position: relative;
   padding: 0;
 }
 
@@ -240,17 +241,17 @@ div.file-tabs a.unsaved {
 #info-panels .panel .panel-body .default-panel-content {
   position: relative;
   width: 100%;
-  min-height: 100px;
+  height: 100px;
   display: block;
-  overflow-y: auto;
+  overflow-y: scroll;
   resize: vertical;
-  padding: 5px;
 }
 
 #info-panels .panel .panel-body .list-header {
   font-weight: bold;
   background-color: #f2f2f2;
   border-bottom: 1px solid #ddd;
+  padding-right: 15px;
 }
 
 #info-panels .panel .panel-body .list-row {
@@ -313,7 +314,12 @@ Console,
 Eval console
 */
 .console .default-panel-content {
-  height: 200px;
+  min-height: 200px !important;
+}
+
+.console .default-panel-content,
+.eval .default-panel-content {
+  padding: 5px;
 }
 
 #eval-input {
