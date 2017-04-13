@@ -334,12 +334,10 @@ function setWelcomeSession()
   if (getSessionById(0) == null)
   {
     var welcome = "/**\n" +
-                  "* Welcome in the JerryScript Remote Debugger WebIDE.\n" +
-                  "*\n" +
-                  "* Open or create a new file to start the work please.\n" +
+                  "* JerryScript Remote Debugger WebIDE.\n" +
                   "*/\n";
 
-    var eSession = new EditSession(welcome, "ace/mode/javascript");
+    var eSession = new env.EditSession(welcome, "ace/mode/javascript");
     session.data.push(
     {
       id: 0,
@@ -360,8 +358,8 @@ function createNewSession(name, data, tab, saved)
 {
   var saved = saved || true;
   var tab = tab || filetab.work;
-
-  var eSession = new EditSession(data, "ace/mode/javascript");
+  var doc = new env.Document(data.trim());
+  var eSession = new env.EditSession(doc, "ace/mode/javascript");
   // Store the edit session.
   session.nextID++;
   session.data.push(
@@ -439,8 +437,7 @@ function switchSession(id)
 
   if (client.debuggerObj &&
       env.lastBreakpoint != null &&
-      env.lastBreakpoint.func.sourceName.endsWith(getSessionNameById(id))
-      )
+      env.lastBreakpoint.func.sourceName.endsWith(getSessionNameById(id)))
   {
     highlightCurrentLine(env.lastBreakpoint.line);
   }
@@ -483,7 +480,7 @@ function sessionNameCheck(name, log)
   {
     if (log)
     {
-      logger.warn("Warning! The " + name + " is missing.\n");
+      logger.warn("Warning! The " + name + " is missing.");
     }
 
     return false;
@@ -600,7 +597,8 @@ $(document).ready(function()
   // Init the ACE editor.
   env.editor.setTheme("ace/theme/chrome");
   var JavaScriptMode = ace.require("ace/mode/javascript").Mode;
-  EditSession = ace.require("ace/edit_session").EditSession;
+  env.EditSession = ace.require("ace/edit_session").EditSession;
+  env.Document = require("ace/document").Document;
   env.editor.session.setMode(new JavaScriptMode());
   env.editor.setShowInvisibles(false);
 
@@ -611,7 +609,7 @@ $(document).ready(function()
   setWelcomeSession();
 
   /*
-  * Editor settings button event.
+  * Editor settings toggle button event.
   */
   $("#editor-settings-button").on("change", function()
   {
@@ -619,7 +617,7 @@ $(document).ready(function()
   });
 
   /*
-  * File load button.
+  * File open button.
   */
   $("#open-file-button").on("click", function()
   {
@@ -1213,14 +1211,20 @@ function DebuggerClient(address)
 
     if (!result)
     {
-      result = "<unknown>";
+      result = "[unknown]";
     }
 
     result += ":" + breakpoint.line;
 
-    if (breakpoint.func.name)
+    if (breakpoint.func.is_func)
     {
-      result += " (in " + breakpoint.func.name + ")";
+      result += " (in "
+                + (breakpoint.func.name ? breakpoint.func.name : "function")
+                + "() at line:"
+                + breakpoint.func.line
+                + ", col:"
+                + breakpoint.func.column
+                + ")";
     }
 
     return result;
@@ -1611,7 +1615,8 @@ function DebuggerClient(address)
           lines = {}
           offsets = {}
 
-          func.firstLine = (func.lines.length > 0) ? func.lines[0] : -1;
+          func.firstBreakpointLine = func.lines[0];
+          func.firstBreakpointOffset = func.offsets[0];
 
           for (var i = 0; i < func.lines.length; i++)
           {
@@ -1748,7 +1753,7 @@ function DebuggerClient(address)
 
         if (message[0] == JERRY_DEBUGGER_EXCEPTION_HIT)
         {
-          logger.log("Exception throw detected (to disable automatic stop type exception 0)");
+          logger.log("Exception throw detected");
         }
 
         lastBreakpointHit = breakpoint;
@@ -1764,13 +1769,29 @@ function DebuggerClient(address)
                    + breakpointInfo
                    + breakpointToString(breakpoint));
 
+        /* EXTENDED CODE */
         env.lastBreakpoint = breakpoint;
 
         updateContinueStopButton(button.continue);
 
-        if (sessionNameCheck(breakpoint.func.sourceName, true))
+        if (breakpoint.func.sourceName != '')
         {
-          sessionSourceCheck(breakpoint.func.source, true);
+          if (sessionNameCheck(breakpoint.func.sourceName, true))
+          {
+            sessionSourceCheck(breakpoint.func.source.trim(), true);
+          } else {
+            logger.log('<div class="btn btn-xs btn-warning load-from-jerry">Load from Jerry</div>');
+            $(".load-from-jerry").on("click", function()
+            {
+              unhighlightLine();
+              var code = breakpoint.func.source;
+              var name = breakpoint.func.sourceName.split("/");
+              name = name[name.length - 1];
+              createNewSession(name, code, filetab.work, true);
+              $(this).addClass("disabled");
+              $(this).unbind("click");
+            });
+          }
         }
 
         // Go the the right session.
@@ -1796,6 +1817,7 @@ function DebuggerClient(address)
         {
           getbacktrace();
         }
+        /* EXTENDED CODE */
 
         return;
       }
@@ -1810,21 +1832,9 @@ function DebuggerClient(address)
 
           breakpoint = getBreakpoint(breakpointData).breakpoint;
 
-          if (env.clBacktrace)
-          {
-            logger.log("  frame "
-                        + backtraceFrame
-                        + ": "
-                        + breakpointToString(breakpoint));
-          }
           updateBacktracePanel(backtraceFrame, breakpoint);
 
           ++backtraceFrame;
-        }
-
-        if (env.clBacktrace)
-        {
-          env.clBacktrace = false;
         }
 
         if (message[0] == JERRY_DEBUGGER_BACKTRACE_END)
