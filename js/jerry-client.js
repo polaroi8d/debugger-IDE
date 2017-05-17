@@ -1521,7 +1521,7 @@ function DebuggerClient(address)
                    source: "",
                    lines: [],
                    offsets: [] }];
-    var newFunctions = [ ];
+    var newFunctions = { };
 
     this.receive = function(message)
     {
@@ -1629,7 +1629,7 @@ function DebuggerClient(address)
           func.lines = lines;
           func.offsets = offsets;
 
-          newFunctions.push(func);
+          newFunctions[func.byte_code_cp] = func;
 
           if (stack.length > 0)
           {
@@ -1638,11 +1638,6 @@ function DebuggerClient(address)
 
           func.source = source;
           func.sourceName = sourceName;
-          // TODO: Create new sesison for internal eval.
-          // if (sourceName === "")
-          // {
-          //   createNewSession("unknown.js", source, filetab.work, false);
-          // }
           break;
         }
 
@@ -1668,11 +1663,11 @@ function DebuggerClient(address)
         }
       }
 
-      for (var i = 0; i < newFunctions.length; i++)
+      for (var i in newFunctions)
       {
         var func = newFunctions[i];
 
-        functions[func.byte_code_cp] = func
+        functions[i] = func;
 
         for (var j in func.lines)
         {
@@ -1899,6 +1894,7 @@ function DebuggerClient(address)
   this.setBreakpoint = function(str)
   {
     line = /^(.+):([1-9][0-9]*)$/.exec(str);
+    var found = false;
 
     if (line)
     {
@@ -1914,6 +1910,7 @@ function DebuggerClient(address)
             || sourceName.endsWith("\\" + line[1]))
         {
           insertBreakpoint(func.lines[line[2]]);
+          found = true;
         }
       }
     }
@@ -1923,11 +1920,16 @@ function DebuggerClient(address)
       {
         var func = functions[i];
 
-        if (func.name == str && func.firstLine >= 0)
+        if (func.name == str)
         {
-          insertBreakpoint(func.lines[func.firstLine]);
+          insertBreakpoint(func.lines[func.firstBreakpointLine]);
+          found = true;
         }
       }
+    }
+    if (!found)
+    {
+      logger.log("Breakpoint not found");
     }
   }
 
