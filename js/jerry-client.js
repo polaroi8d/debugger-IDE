@@ -943,6 +943,23 @@ $(document).ready(function()
   /*
   * Debugger action button events.
   */
+  $("#delete-all-button").on("click", function()
+  {
+    var found = false;
+
+    for (var i in client.debuggerObj.activeBreakpoints)
+    {
+      delete client.debuggerObj.activeBreakpoints[i];
+      found = true;
+    }
+
+    if (!found)
+    {
+      logger.log("No active breakpoints.")
+    }
+    deleteBreakpointsFromEditor();
+  });
+
   $("#continue-stop-button").on("click", function()
   {
     if ($(this).hasClass("disabled"))
